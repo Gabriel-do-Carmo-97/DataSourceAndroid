@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DataSourceAndroid"
 include(":app")
- 
+include(":firebase-sdk")
