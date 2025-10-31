@@ -23,3 +23,4 @@ rootProject.name = "DataSourceAndroid"
 include(":app")
 include(":firebase-sdk")
 include(":appwrite-sdk")
+include(":supabase")
