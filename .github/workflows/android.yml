@@ -1,10 +1,10 @@
-name: Android Publish Lib Design System
+name: Android Libs CI
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main", "master" ] # Adicionado "main" como boa prática
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main", "master" ]
 
 jobs:
   build_Test_and_Publish:
@@ -18,19 +18,21 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           lfs: true
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Detect changed modules
         id: changed_modules
         uses: tj-actions/changed-files@v47
         with:
           files: |
-            design-system/**
-            ds-templates/**
+            amplifyAws-sdk/**
+            appwrite-sdk/**
+            firebase-sdk/**
+            mongoDb-sdk/**
+            supabase/**
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -45,62 +47,75 @@ jobs:
       - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Build with Gradle
+      - name: Build and Test Project
         run: ./gradlew build
 
-      - name: ⬆️ Upload Debugs AARs as Artifacts
+      - name: ⬆️ Upload AARs as Artifacts
+        if: steps.changed_modules.outputs.any_changed == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: debugs-aars
+          name: libs-aars
           path: |
-            ./design-system/build/outputs/aar/design-system-debug.aar
-            ./ds-templates/build/outputs/aar/ds-templates-debug.aar
+            amplifyAws-sdk/build/outputs/aar/*.aar
+            appwrite-sdk/build/outputs/aar/*.aar
+            firebase-sdk/build/outputs/aar/*.aar
+            mongoDb-sdk/build/outputs/aar/*.aar
+            supabase/build/outputs/aar/*.aar
 
-      - name: ⬆️ Upload Release AARs as Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-aars
-          path: |
-            ./design-system/build/outputs/aar/design-system-release.aar
-            ./ds-templates/build/outputs/aar/ds-templates-release.aar
-
-      - name: 📦 Publish design-system if changed
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(steps.changed_modules.outputs.all_changed_files, 'design-system/')
+      - name: 📦 Publish amplifyAws-sdk if changed
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'amplifyAws-sdk/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :design-system:publish
+        run: ./gradlew :amplifyAws-sdk:publish
 
-      - name: 📦 Publish ds-templates if changed
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(steps.changed_modules.outputs.all_changed_files, 'ds-templates/')
+      - name: 📦 Publish appwrite-sdk if changed
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'appwrite-sdk/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./gradlew :ds-templates:publish
+        run: ./gradlew :appwrite-sdk:publish
 
-      - name: Configure GitHub Access
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
+      - name: 📦 Publish firebase-sdk if changed
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'firebase-sdk/')
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :firebase-sdk:publish
+
+      - name: 📦 Publish mongoDb-sdk if changed
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'mongoDb-sdk/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :mongoDb-sdk:publish
+
+      - name: 📦 Publish supabase if changed
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'supabase/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :supabase:publish
+
+      - name: Configure Git User
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
         run: |
-          git config user.name "GitHub Actions Bot"
-          git config user.email "actions@github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create Git Tag
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Git Tag and Push
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
         run: |
           TAG_NAME="v0.0.${{ github.run_number }}"
           git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
           git push origin "$TAG_NAME"
 
-      - name: Create Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: v0.0.${{ github.run_number }}
         run: |
-          TAG_NAME="v0.0.${{ github.run_number }}"
+          # Gera a lista de arquivos para anexar
+          files_to_upload=$(find amplifyAws-sdk appwrite-sdk firebase-sdk mongoDb-sdk supabase -path '*/build/outputs/aar/*-release.aar' | tr '\n' ' ')
+          
           gh release create "$TAG_NAME" \
             --title "Release $TAG_NAME" \
-            --notes "Release automático. Mudanças detectadas em: ${{ steps.changed_modules.outputs.all_changed_files }}." \
-            ./design-system/build/outputs/aar/design-system-release.aar \
-            ./ds-templates/build/outputs/aar/ds-templates-release.aar
+            --notes "Release automática. Mudanças detectadas em: ${{ steps.changed_modules.outputs.all_changed_files }}." \
+            $files_to_upload
+
