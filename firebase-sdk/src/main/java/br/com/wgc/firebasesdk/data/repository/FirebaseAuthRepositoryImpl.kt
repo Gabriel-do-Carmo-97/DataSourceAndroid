@@ -141,7 +141,7 @@ class FirebaseAuthRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateEmail(newEmail: String): DataResult<Unit> = runCatching {
-        auth.currentUser!!.updateEmail(newEmail).await()
+        auth.currentUser!!.verifyBeforeUpdateEmail(newEmail).await()
         DataResult.Success(Unit)
     }.getOrElse { exception ->
         Log.e("AuthRepoImpl", "Falha ao atualizar e-mail: ${exception.message}", exception)
