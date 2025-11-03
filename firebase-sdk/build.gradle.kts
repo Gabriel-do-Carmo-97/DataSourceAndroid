@@ -38,6 +38,16 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    publishing {
+        singleVariant("release")
+    }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1,LICENSE.md,LICENSE-notice.md}"
+        }
+    }
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
 }
 
 dependencies {
