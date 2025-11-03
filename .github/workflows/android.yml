@@ -1,0 +1,106 @@
+name: Android Publish Lib Design System
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build_Test_and_Publish:
+
+    name: Build, Test and Publish
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect changed modules
+        id: changed_modules
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            design-system/**
+            ds-templates/**
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: 🤖 Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Build with Gradle
+        run: ./gradlew build
+
+      - name: ⬆️ Upload Debugs AARs as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debugs-aars
+          path: |
+            ./design-system/build/outputs/aar/design-system-debug.aar
+            ./ds-templates/build/outputs/aar/ds-templates-debug.aar
+
+      - name: ⬆️ Upload Release AARs as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-aars
+          path: |
+            ./design-system/build/outputs/aar/design-system-release.aar
+            ./ds-templates/build/outputs/aar/ds-templates-release.aar
+
+      - name: 📦 Publish design-system if changed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(steps.changed_modules.outputs.all_changed_files, 'design-system/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :design-system:publish
+
+      - name: 📦 Publish ds-templates if changed
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(steps.changed_modules.outputs.all_changed_files, 'ds-templates/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew :ds-templates:publish
+
+      - name: Configure GitHub Access
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Create Git Tag
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="v0.0.${{ github.run_number }}"
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Create Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master' && steps.changed_modules.outputs.any_changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG_NAME="v0.0.${{ github.run_number }}"
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes "Release automático. Mudanças detectadas em: ${{ steps.changed_modules.outputs.all_changed_files }}." \
+            ./design-system/build/outputs/aar/design-system-release.aar \
+            ./ds-templates/build/outputs/aar/ds-templates-release.aar
