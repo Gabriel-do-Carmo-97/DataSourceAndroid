@@ -1,6 +1,5 @@
 package br.com.wgc.firebasesdk.data.repository
 
-
 import br.com.wgc.firebasesdk.data.model.database.message.Conversation
 import br.com.wgc.firebasesdk.data.model.database.message.Message
 import br.com.wgc.firebasesdk.data.model.database.message.MessageStatus
@@ -26,22 +25,9 @@ internal class MessageRepositoryImpl(
     private val conversationsRef = database.getReference("conversations")
     private val usersRef = database.getReference("users") // Assumindo um nó 'users' para busca
 
-    /**
-     * Envia uma mensagem para uma conversa específica.
-     * Esta operação atualiza atomicamente a lista de mensagens e a 'última mensagem' da conversa.
-     *
-     * @param conversationId O ID da conversa para a qual enviar a mensagem.
-     * @param message O objeto de mensagem a ser enviado.
-     * @return Um resultado indicando sucesso ou falha.
-     */
-    override suspend fun sendMessage(
-        conversationId: String,
-        message: Message
-    ): DataResult<String> = runCatching {
-        val messageId = messagesRef
-            .child(conversationId)
-            .push()
-            .key ?: throw DatabaseException("Não foi possível gerar a chave da mensagem.")
+    override suspend fun sendMessage(conversationId: String, message: Message): DataResult<Unit> = runCatching {
+        val messageId = messagesRef.child(conversationId).push().key
+            ?: throw IllegalStateException("Não foi possível gerar a chave da mensagem.")
 
         val messageToSend = message.copy(messageId = messageId, status = MessageStatus.SENT)
 
@@ -51,21 +37,13 @@ internal class MessageRepositoryImpl(
         )
 
         database.reference.updateChildren(updates).await()
-        DataResult.Success("Mensagem enviada com sucesso")
+        DataResult.Success(Unit)
     }.getOrElse { exception ->
         val appError = mapExceptionToAppError(exception)
         DataResult.Failure(appError)
     }
 
-    /**
-     * Ouve mensagens de uma conversa em tempo real.
-     *
-     * @param conversationId O ID da conversa para ouvir.
-     * @return Um Flow que emite o resultado com a lista de mensagens sempre que há uma atualização.
-     */
-    override fun getMessages(
-        conversationId: String
-    ): Flow<DataResult<List<Message>>> = callbackFlow {
+    override fun getMessages(conversationId: String): Flow<DataResult<List<Message>>> = callbackFlow {
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val messages = snapshot.children.mapNotNull { it.getValue<Message>() }
@@ -81,14 +59,6 @@ internal class MessageRepositoryImpl(
         awaitClose { messagesRef.child(conversationId).removeEventListener(listener) }
     }
 
-    /**
-     * Busca um histórico paginado de mensagens.
-     *
-     * @param conversationId O ID da conversa.
-     * @param lastMessageId O ID da última mensagem buscada (para paginar a partir dela). Nulo para começar do início.
-     * @param limit O número máximo de mensagens a buscar.
-     * @return Um resultado com a lista de mensagens ou um erro.
-     */
     override suspend fun getMessageHistory(
         conversationId: String,
         lastMessageId: String?,
@@ -105,15 +75,7 @@ internal class MessageRepositoryImpl(
         DataResult.Failure(mapExceptionToAppError(exception))
     }
 
-    /**
-     * Ouve a lista de conversas de um usuário em tempo real.
-     *
-     * @param userId O ID do usuário.
-     * @return Um Flow que emite a lista de conversas sempre que ela muda.
-     */
-    override fun getConversations(
-        userId: String
-    ): Flow<DataResult<List<Conversation>>> = callbackFlow {
+    override fun getConversations(userId: String): Flow<DataResult<List<Conversation>>> = callbackFlow {
         val userConversationsRef = database.getReference("user-conversations").child(userId)
         val listener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -130,15 +92,9 @@ internal class MessageRepositoryImpl(
         awaitClose { userConversationsRef.removeEventListener(listener) }
     }
 
-    /**
-     * Cria uma nova conversa e a associa a todos os participantes.
-     *
-     * @param conversation O objeto de conversa a ser criado.
-     * @return Um resultado com o ID da nova conversa ou um erro.
-     */
     override suspend fun createConversation(conversation: Conversation): DataResult<String> = runCatching {
         val conversationId = conversationsRef.push().key
-            ?: throw DatabaseException("Não foi possível gerar a chave da conversa.")
+            ?: throw IllegalStateException("Não foi possível gerar a chave da conversa.")
         
         val conversationToCreate = conversation.copy(conversationId = conversationId)
         
@@ -154,14 +110,7 @@ internal class MessageRepositoryImpl(
          DataResult.Failure(mapExceptionToAppError(exception))
     }
 
-    /**
-     * Busca por usuários na base de dados.
-     *
-     * @param query O termo de busca (nome, etc.).
-     * @return Uma lista de usuários encontrados. O modelo de usuário é genérico (Any).
-     */
     override suspend fun searchUsers(query: String): DataResult<List<Any>> = runCatching {
-        // Realtime Database não é ideal para buscas. Use uma query simples de "começa com".
         val snapshot = usersRef.orderByChild("name")
             .startAt(query)
             .endAt(query + "\uf8ff")
@@ -174,14 +123,6 @@ internal class MessageRepositoryImpl(
         DataResult.Failure(mapExceptionToAppError(exception))
     }
 
-    /**
-     * Atualiza o status de uma mensagem específica (ex: para LIDO).
-     *
-     * @param conversationId O ID da conversa.
-     * @param messageId O ID da mensagem.
-     * @param status O novo status.
-     * @return Um resultado indicando sucesso ou falha.
-     */
     override suspend fun updateMessageStatus(
         conversationId: String,
         messageId: String,
@@ -189,9 +130,6 @@ internal class MessageRepositoryImpl(
     ): DataResult<Unit> = runCatching {
         val updates = mapOf(
             "/messages/$conversationId/$messageId/status" to status,
-            // Opcional: Atualizar também o status na 'lastMessage' da conversa, se for a mesma mensagem.
-            // Isso requer uma leitura antes, então pode ser complexo.
-            // Por simplicidade, atualizamos apenas a mensagem original.
         )
         database.reference.updateChildren(updates).await()
         DataResult.Success(Unit)
@@ -205,8 +143,6 @@ internal class MessageRepositoryImpl(
                 when {
                     exception.message?.contains("permission_denied", ignoreCase = true) == true ->
                         AppError.Database.PERMISSION_DENIED
-                    exception.message?.contains("disconnected", ignoreCase = true) == true ->
-                        AppError.Database.DISCONNECTED
                     else -> AppError.Database.OPERATION_FAILED
                 }
             }

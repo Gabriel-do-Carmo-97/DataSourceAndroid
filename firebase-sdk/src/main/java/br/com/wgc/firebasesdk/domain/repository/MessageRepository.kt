@@ -19,7 +19,7 @@ interface MessageRepository {
      * @param message O objeto da mensagem a ser enviada.
      * @return Um resultado indicando sucesso ou falha.
      */
-    suspend fun sendMessage(conversationId: String, message: Message): DataResult<String>
+    suspend fun sendMessage(conversationId: String, message: Message): DataResult<Unit>
 
     /**
      * Ouve as mensagens recebidas em uma conversa específica em tempo real.
