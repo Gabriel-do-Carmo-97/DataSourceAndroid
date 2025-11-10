@@ -18,7 +18,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           lfs: true
@@ -38,7 +38,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -52,7 +52,7 @@ jobs:
 
       - name: ⬆️ Upload AARs as Artifacts
         if: steps.changed_modules.outputs.any_changed == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: libs-aars
           path: |
