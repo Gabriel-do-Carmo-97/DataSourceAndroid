@@ -9,7 +9,7 @@ import br.com.wgc.firebasesdk.domain.util.DataResult
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser
 
-internal interface FirebaseAuthRepository {
+interface FirebaseAuthRepository {
 
     suspend fun registerEmailWithPassword(userRequest: UserRegisterRequest): DataResult<UserRegisterResponse>
     suspend fun loginEmailWithPassword(loginRequest: LoginRequest): DataResult<LoginResponse>

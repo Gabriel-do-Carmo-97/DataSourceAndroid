@@ -4,7 +4,7 @@ import br.com.wgc.firebasesdk.data.model.database.geo.Location
 import br.com.wgc.firebasesdk.domain.util.DataResult
 import kotlinx.coroutines.flow.Flow
 
-internal interface GeoRepository {
+interface GeoRepository {
 
     /**
      * Updates the geographic location for a specific entity (e.g., user, food truck).

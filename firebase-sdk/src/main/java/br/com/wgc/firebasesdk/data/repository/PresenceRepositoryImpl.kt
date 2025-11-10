@@ -1,6 +1,6 @@
 package br.com.wgc.firebasesdk.data.repository
 
-import br.com.wgc.firebasesdk.data.model.presence.PresenceState
+import br.com.wgc.firebasesdk.data.model.database.presence.PresenceState
 import br.com.wgc.firebasesdk.domain.repository.PresenceRepository
 import br.com.wgc.firebasesdk.domain.util.AppError
 import br.com.wgc.firebasesdk.domain.util.DataResult

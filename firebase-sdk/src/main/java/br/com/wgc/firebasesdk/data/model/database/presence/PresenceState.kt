@@ -1,4 +1,4 @@
-package br.com.wgc.firebasesdk.data.model.presence
+package br.com.wgc.firebasesdk.data.model.database.presence
 
 import androidx.annotation.Keep
 

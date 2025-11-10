@@ -47,6 +47,21 @@ jobs:
       - name: 🤖 Setup Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Build Module amplify-aws
+        run: ./gradlew :amplifyAws-sdk:build
+
+      - name: Build Module appwrite
+        run: ./gradlew :appwrite-sdk:build
+
+      - name: Build Module firebase
+        run: ./gradlew :firebase-sdk:build
+
+      - name: Build Module mongoDb
+        run: ./gradlew :mongoDb-sdk:build
+
+      - name: Build Module supabase
+        run: ./gradlew :supabase:build
+
       - name: Build and Test Project
         run: ./gradlew build
 
