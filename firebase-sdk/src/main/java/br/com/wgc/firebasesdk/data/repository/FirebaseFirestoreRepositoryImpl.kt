@@ -3,8 +3,8 @@ package br.com.wgc.firebasesdk.data.repository
 import br.com.wgc.firebasesdk.data.model.firestore.Filter
 import br.com.wgc.firebasesdk.data.model.firestore.Operator
 import br.com.wgc.firebasesdk.domain.repository.FirebaseFirestoreRepository
-import br.com.wgc.firebasesdk.domain.util.AppError
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.AppError
+import br.com.wgc.firebasesdk.util.DataResult
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.Query

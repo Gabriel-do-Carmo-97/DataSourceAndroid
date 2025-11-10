@@ -4,7 +4,7 @@ package br.com.wgc.firebasesdk.domain.repository
 import br.com.wgc.firebasesdk.data.model.database.message.Conversation
 import br.com.wgc.firebasesdk.data.model.database.message.Message
 import br.com.wgc.firebasesdk.data.model.database.message.MessageStatus
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.DataResult
 import kotlinx.coroutines.flow.Flow
 
 /**

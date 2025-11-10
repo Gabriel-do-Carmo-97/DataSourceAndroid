@@ -2,8 +2,8 @@ package br.com.wgc.firebasesdk.data.repository
 
 import br.com.wgc.firebasesdk.data.model.database.presence.PresenceState
 import br.com.wgc.firebasesdk.domain.repository.PresenceRepository
-import br.com.wgc.firebasesdk.domain.util.AppError
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.AppError
+import br.com.wgc.firebasesdk.util.DataResult
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException

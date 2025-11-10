@@ -7,8 +7,8 @@ import br.com.wgc.firebasesdk.data.model.auth.login.response.LoginResponse
 import br.com.wgc.firebasesdk.data.model.auth.register.request.UserRegisterRequest
 import br.com.wgc.firebasesdk.data.model.auth.register.response.UserRegisterResponse
 import br.com.wgc.firebasesdk.domain.repository.FirebaseAuthRepository
-import br.com.wgc.firebasesdk.domain.util.AppError
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.AppError
+import br.com.wgc.firebasesdk.util.DataResult
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.EmailAuthProvider
 import com.google.firebase.auth.FirebaseAuth

@@ -1,4 +1,4 @@
-package br.com.wgc.firebasesdk.domain.util
+package br.com.wgc.firebasesdk.util
 
 
 /**

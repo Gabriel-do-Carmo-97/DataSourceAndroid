@@ -1,7 +1,7 @@
 package br.com.wgc.firebasesdk.domain.repository
 
 import br.com.wgc.firebasesdk.data.model.database.presence.PresenceState
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.DataResult
 import kotlinx.coroutines.flow.Flow
 
 /**

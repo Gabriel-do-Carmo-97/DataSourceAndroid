@@ -4,7 +4,7 @@ import br.com.wgc.firebasesdk.data.model.auth.login.request.LoginRequest
 import br.com.wgc.firebasesdk.data.model.auth.login.response.LoginResponse
 import br.com.wgc.firebasesdk.domain.repository.FirebaseAuthRepository
 import br.com.wgc.firebasesdk.domain.repository.FirebaseDatabaseRepository
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.DataResult
 import javax.inject.Inject
 
 /**

@@ -4,8 +4,8 @@ import br.com.wgc.firebasesdk.data.model.database.message.Conversation
 import br.com.wgc.firebasesdk.data.model.database.message.Message
 import br.com.wgc.firebasesdk.data.model.database.message.MessageStatus
 import br.com.wgc.firebasesdk.domain.repository.MessageRepository
-import br.com.wgc.firebasesdk.domain.util.AppError
-import br.com.wgc.firebasesdk.domain.util.DataResult
+import br.com.wgc.firebasesdk.util.AppError
+import br.com.wgc.firebasesdk.util.DataResult
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseException
