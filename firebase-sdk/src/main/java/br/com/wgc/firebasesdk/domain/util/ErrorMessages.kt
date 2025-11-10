@@ -33,6 +33,13 @@ object ErrorMessages {
         const val PERMISSION_DENIED = "Você não tem permissão para acessar estes dados."
         const val DATA_STALE = "Os dados podem estar desatualizados. Tente recarregar."
         const val OPERATION_FAILED = "A operação no banco de dados falhou."
+        const val DISCONNECTED = "A operação foi cancelada por falta de conexão com a internet."
+        const val EXPIRED_TOKEN = "Sua sessão expirou. Por favor, faça login novamente para continuar."
+        const val INVALID_TOKEN = "Sua sessão é inválida. Por favor, faça login novamente."
+        const val MAX_RETRIES = "Não foi possível completar a operação. Verifique sua conexão e tente novamente."
+        const val OVERRIDDEN_BY_SET = "Suas alterações não puderam ser salvas porque os dados foram atualizados. Tente novamente."
+        const val UNAVAILABLE = "O serviço está temporariamente indisponível. Tente novamente em alguns instantes."
+        const val WRITE_CANCELED = "A operação de escrita foi cancelada."
     }
 
     object Storage {
