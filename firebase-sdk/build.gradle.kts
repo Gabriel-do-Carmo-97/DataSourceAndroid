@@ -81,6 +81,7 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 }
 
+
 publishing {
     publications {
         create<MavenPublication>("release") {
