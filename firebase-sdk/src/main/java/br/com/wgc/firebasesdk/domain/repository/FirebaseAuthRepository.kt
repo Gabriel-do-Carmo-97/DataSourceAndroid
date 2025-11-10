@@ -1,10 +1,10 @@
 package br.com.wgc.firebasesdk.domain.repository
 
 import android.net.Uri
-import br.com.wgc.firebasesdk.data.model.login.request.LoginRequest
-import br.com.wgc.firebasesdk.data.model.login.response.LoginResponse
-import br.com.wgc.firebasesdk.data.model.register.request.UserRegisterRequest
-import br.com.wgc.firebasesdk.data.model.register.response.UserRegisterResponse
+import br.com.wgc.firebasesdk.data.model.auth.login.request.LoginRequest
+import br.com.wgc.firebasesdk.data.model.auth.login.response.LoginResponse
+import br.com.wgc.firebasesdk.data.model.auth.register.request.UserRegisterRequest
+import br.com.wgc.firebasesdk.data.model.auth.register.response.UserRegisterResponse
 import br.com.wgc.firebasesdk.domain.util.DataResult
 import com.google.firebase.auth.AuthCredential
 import com.google.firebase.auth.FirebaseUser

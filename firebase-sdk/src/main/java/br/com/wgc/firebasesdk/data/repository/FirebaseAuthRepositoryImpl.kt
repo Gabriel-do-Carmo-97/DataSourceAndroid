@@ -2,10 +2,10 @@ package br.com.wgc.firebasesdk.data.repository
 
 import android.net.Uri
 import android.util.Log
-import br.com.wgc.firebasesdk.data.model.login.request.LoginRequest
-import br.com.wgc.firebasesdk.data.model.login.response.LoginResponse
-import br.com.wgc.firebasesdk.data.model.register.request.UserRegisterRequest
-import br.com.wgc.firebasesdk.data.model.register.response.UserRegisterResponse
+import br.com.wgc.firebasesdk.data.model.auth.login.request.LoginRequest
+import br.com.wgc.firebasesdk.data.model.auth.login.response.LoginResponse
+import br.com.wgc.firebasesdk.data.model.auth.register.request.UserRegisterRequest
+import br.com.wgc.firebasesdk.data.model.auth.register.response.UserRegisterResponse
 import br.com.wgc.firebasesdk.domain.repository.FirebaseAuthRepository
 import br.com.wgc.firebasesdk.domain.util.AppError
 import br.com.wgc.firebasesdk.domain.util.DataResult
@@ -23,7 +23,7 @@ import kotlinx.coroutines.tasks.await
 import java.io.IOException
 import javax.inject.Inject
 
-class FirebaseAuthRepositoryImpl @Inject constructor(
+internal class FirebaseAuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth
 ) : FirebaseAuthRepository {
 

@@ -1,4 +1,4 @@
-package br.com.wgc.firebasesdk.data.model.register.response
+package br.com.wgc.firebasesdk.data.model.auth.register.response
 
 data class UserRegisterResponse(
     val id: String,

@@ -92,6 +92,13 @@ sealed interface AppError {
         PERMISSION_DENIED,
         DATA_STALE,
         OPERATION_FAILED,
+        DISCONNECTED,
+        EXPIRED_TOKEN,
+        INVALID_TOKEN,
+        MAX_RETRIES,
+        OVERRIDDEN_BY_SET,
+        UNAVAILABLE,
+        WRITE_CANCELED
     }
 
     /**
