@@ -2,135 +2,156 @@ name: Android Libs CI
 
 on:
   push:
-    branches: [ "main", "master" ] # Adicionado "main" como boa prática
+    branches: [ "main", "master" ]
   pull_request:
     branches: [ "main", "master" ]
 
 jobs:
-  build_Test_and_Publish:
-
-    name: Build, Test and Publish
+  # Job 1: Apenas detecta quais módulos foram alterados
+  check_changes:
+    name: 1. Detect Changed Modules
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-      packages: write
+    outputs:
+      aws_changed: ${{ steps.aws_files.outputs.any_changed }}
+      appwrite_changed: ${{ steps.appwrite_files.outputs.any_changed }}
+      firebase_changed: ${{ steps.firebase_files.outputs.any_changed }}
+      mongodb_changed: ${{ steps.mongodb_files.outputs.any_changed }}
+      supabase_changed: ${{ steps.supabase_files.outputs.any_changed }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
           fetch-depth: 0
-          lfs: true
 
-      - name: Detect changed modules
-        id: changed_modules
+      - name: Detect changes in amplifyAws-sdk
+        id: aws_files
         uses: tj-actions/changed-files@v47
         with:
-          files: |
-            amplifyAws-sdk/**
-            appwrite-sdk/**
-            firebase-sdk/**
-            mongoDb-sdk/**
-            supabase/**
+          files: amplifyAws-sdk/**
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Set up JDK 17
-        uses: actions/setup-java@v5
+      - name: Detect changes in appwrite-sdk
+        id: appwrite_files
+        uses: tj-actions/changed-files@v47
         with:
-          java-version: '17'
-          distribution: 'temurin'
-          cache: gradle
+          files: appwrite-sdk/**
 
-      - name: 🤖 Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Build Module amplify-aws
-        run: ./gradlew :amplifyAws-sdk:build
-
-      - name: Build Module appwrite
-        run: ./gradlew :appwrite-sdk:build
-
-      - name: Build Module firebase
-        run: ./gradlew :firebase-sdk:build
-
-      - name: Build Module mongoDb
-        run: ./gradlew :mongoDb-sdk:build
-
-      - name: Build Module supabase
-        run: ./gradlew :supabase:build
-
-      - name: Build and Test Project
-        run: ./gradlew build
-
-      - name: ⬆️ Upload AARs as Artifacts
-        if: steps.changed_modules.outputs.any_changed == 'true'
-        uses: actions/upload-artifact@v5
+      - name: Detect changes in firebase-sdk
+        id: firebase_files
+        uses: tj-actions/changed-files@v47
         with:
-          name: libs-aars
-          path: |
-            amplifyAws-sdk/build/outputs/aar/*.aar
-            appwrite-sdk/build/outputs/aar/*.aar
-            firebase-sdk/build/outputs/aar/*.aar
-            mongoDb-sdk/build/outputs/aar/*.aar
-            supabase/build/outputs/aar/*.aar
+          files: firebase-sdk/**
 
-      - name: 📦 Publish amplifyAws-sdk if changed
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'amplifyAws-sdk/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Detect changes in mongoDb-sdk
+        id: mongodb_files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: mongoDb-sdk/**
+
+      - name: Detect changes in supabase
+        id: supabase_files
+        uses: tj-actions/changed-files@v47
+        with:
+          files: supabase/**
+
+  # --- Jobs de Build e Publish --- #
+
+  build_and_publish_aws:
+    name: 2. Build & Publish AWS
+    runs-on: ubuntu-latest
+    needs: check_changes
+    if: needs.check_changes.outputs.aws_changed == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps: 
+      - uses: actions/checkout@v5
+      - run: chmod +x gradlew
+      - uses: actions/setup-java@v5
+        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+      - uses: android-actions/setup-android@v3
+      - run: ./gradlew :amplifyAws-sdk:build
+      - name: Publish
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :amplifyAws-sdk:publish
 
-      - name: 📦 Publish appwrite-sdk if changed
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'appwrite-sdk/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build_and_publish_appwrite:
+    name: 2. Build & Publish Appwrite
+    runs-on: ubuntu-latest
+    needs: check_changes
+    if: needs.check_changes.outputs.appwrite_changed == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - run: chmod +x gradlew
+      - uses: actions/setup-java@v5
+        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+      - uses: android-actions/setup-android@v3
+      - run: ./gradlew :appwrite-sdk:build
+      - name: Publish
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :appwrite-sdk:publish
 
-      - name: 📦 Publish firebase-sdk if changed
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'firebase-sdk/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build_and_publish_firebase:
+    name: 2. Build & Publish Firebase
+    runs-on: ubuntu-latest
+    needs: check_changes
+    if: needs.check_changes.outputs.firebase_changed == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - run: chmod +x gradlew
+      - uses: actions/setup-java@v5
+        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+      - uses: android-actions/setup-android@v3
+      - run: ./gradlew :firebase-sdk:build
+      - name: Publish
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :firebase-sdk:publish
 
-      - name: 📦 Publish mongoDb-sdk if changed
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'mongoDb-sdk/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build_and_publish_mongodb:
+    name: 2. Build & Publish MongoDB
+    runs-on: ubuntu-latest
+    needs: check_changes
+    if: needs.check_changes.outputs.mongodb_changed == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - run: chmod +x gradlew
+      - uses: actions/setup-java@v5
+        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+      - uses: android-actions/setup-android@v3
+      - run: ./gradlew :mongoDb-sdk:build
+      - name: Publish
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :mongoDb-sdk:publish
 
-      - name: 📦 Publish supabase if changed
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && contains(steps.changed_modules.outputs.all_changed_files, 'supabase/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build_and_publish_supabase:
+    name: 2. Build & Publish Supabase
+    runs-on: ubuntu-latest
+    needs: check_changes
+    if: needs.check_changes.outputs.supabase_changed == 'true'
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v5
+      - run: chmod +x gradlew
+      - uses: actions/setup-java@v5
+        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+      - uses: android-actions/setup-android@v3
+      - run: ./gradlew :supabase:build
+      - name: Publish
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :supabase:publish
-
-      - name: Configure Git User
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create Git Tag and Push
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
-        run: |
-          TAG_NAME="v0.0.${{ github.run_number }}"
-          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
-          git push origin "$TAG_NAME"
-
-      - name: Create GitHub Release
-        if: github.event_name == 'push' && contains(github.ref, 'heads/main') || contains(github.ref, 'heads/master') && steps.changed_modules.outputs.any_changed == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: v0.0.${{ github.run_number }}
-        run: |
-          # Gera a lista de arquivos para anexar
-          files_to_upload=$(find amplifyAws-sdk appwrite-sdk firebase-sdk mongoDb-sdk supabase -path '*/build/outputs/aar/*-release.aar' | tr '\n' ' ')
-          
-          gh release create "$TAG_NAME" \
-            --title "Release $TAG_NAME" \
-            --notes "Release automática. Mudanças detectadas em: ${{ steps.changed_modules.outputs.all_changed_files }}." \
-            $files_to_upload
-
