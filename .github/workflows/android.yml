@@ -39,12 +39,13 @@ jobs:
         with: { files: supabase/** }
       - id: changed_files
         uses: tj-actions/changed-files@v47
-        with: { files: |
+        with:
+          files: |
             amplifyAws-sdk/**
             appwrite-sdk/**
             firebase-sdk/**
             mongoDb-sdk/**
-            supabase/** }
+            supabase/**
 
   # --- Jobs de Build e Publish (rodam em paralelo) --- #
 
