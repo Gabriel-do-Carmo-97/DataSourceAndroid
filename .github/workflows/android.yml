@@ -21,22 +21,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v5
-        with: { fetch-depth: 0 }
+        with:
+          fetch-depth: 0
       - id: aws_files
         uses: tj-actions/changed-files@v47
-        with: { files: amplifyAws-sdk/** }
+        with:
+          files: amplifyAws-sdk/**
       - id: appwrite_files
         uses: tj-actions/changed-files@v47
-        with: { files: appwrite-sdk/** }
+        with:
+          files: appwrite-sdk/**
       - id: firebase_files
         uses: tj-actions/changed-files@v47
-        with: { files: firebase-sdk/** }
+        with:
+          files: firebase-sdk/**
       - id: mongodb_files
         uses: tj-actions/changed-files@v47
-        with: { files: mongoDb-sdk/** }
+        with:
+          files: mongoDb-sdk/**
       - id: supabase_files
         uses: tj-actions/changed-files@v47
-        with: { files: supabase/** }
+        with:
+          files: supabase/**
       - id: changed_files
         uses: tj-actions/changed-files@v47
         with:
@@ -54,100 +60,140 @@ jobs:
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.aws_changed == 'true'
-    permissions: { contents: read, packages: write }
+    permissions:
+      contents: read
+      packages: write
     steps: 
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :amplifyAws-sdk:build
       - name: Publish
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :amplifyAws-sdk:publish
       - uses: actions/upload-artifact@v4
-        with: { name: aws-aar, path: 'amplifyAws-sdk/build/outputs/aar/*.aar' }
+        with:
+          name: aws-aar
+          path: 'amplifyAws-sdk/build/outputs/aar/*.aar'
 
   build_and_publish_appwrite:
     name: 2. Build & Publish Appwrite
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.appwrite_changed == 'true'
-    permissions: { contents: read, packages: write }
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :appwrite-sdk:build
       - name: Publish
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :appwrite-sdk:publish
       - uses: actions/upload-artifact@v4
-        with: { name: appwrite-aar, path: 'appwrite-sdk/build/outputs/aar/*.aar' }
+        with:
+          name: appwrite-aar
+          path: 'appwrite-sdk/build/outputs/aar/*.aar'
 
   build_and_publish_firebase:
     name: 2. Build & Publish Firebase
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.firebase_changed == 'true'
-    permissions: { contents: read, packages: write }
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :firebase-sdk:build
       - name: Publish
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :firebase-sdk:publish
       - uses: actions/upload-artifact@v4
-        with: { name: firebase-aar, path: 'firebase-sdk/build/outputs/aar/*.aar' }
+        with:
+          name: firebase-aar
+          path: 'firebase-sdk/build/outputs/aar/*.aar'
 
   build_and_publish_mongodb:
     name: 2. Build & Publish MongoDB
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.mongodb_changed == 'true'
-    permissions: { contents: read, packages: write }
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :mongoDb-sdk:build
       - name: Publish
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :mongoDb-sdk:publish
       - uses: actions/upload-artifact@v4
-        with: { name: mongodb-aar, path: 'mongoDb-sdk/build/outputs/aar/*.aar' }
+        with:
+          name: mongodb-aar
+          path: 'mongoDb-sdk/build/outputs/aar/*.aar'
 
   build_and_publish_supabase:
     name: 2. Build & Publish Supabase
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.supabase_changed == 'true'
-    permissions: { contents: read, packages: write }
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :supabase:build
       - name: Publish
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-        env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :supabase:publish
       - uses: actions/upload-artifact@v4
-        with: { name: supabase-aar, path: 'supabase/build/outputs/aar/*.aar' }
+        with:
+          name: supabase-aar
+          path: 'supabase/build/outputs/aar/*.aar'
 
   # Job Final: Cria a Tag e o Release
   create_release:
