@@ -184,7 +184,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :amplifyAws-sdk:publish
 
   publish_appwrite:
@@ -201,7 +203,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :appwrite-sdk:publish
 
   publish_firebase:
@@ -218,7 +222,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :firebase-sdk:publish
 
   publish_mongodb:
@@ -235,7 +241,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :mongoDb-sdk:publish
 
   publish_supabase:
@@ -252,7 +260,9 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
-      - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: ./gradlew :supabase:publish
 
   # --- Jobs Finais de Release ---
