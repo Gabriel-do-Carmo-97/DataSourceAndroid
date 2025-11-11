@@ -57,12 +57,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "br.com.wgc"
             artifactId = "amplifyAws-sdk"
-            version = "0.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0.0.1-SNAPSHOT"}"
-            version = providers.gradleProperty(
-                "libVersion"
-            ).getOrElse(
-                "0.0.${System.getenv("GITHUB_RUN_NUMBER") ?: "0.0.1-SNAPSHOT"}"
-            )
+            version = project.findProperty("version_name") as? String ?: "0.0.1-SNAPSHOT"
             afterEvaluate {
                 from(components["release"])
             }
