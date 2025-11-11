@@ -11,57 +11,67 @@ jobs:
   check_change_aws:
     name: 1. Check AWS Changes
     runs-on: ubuntu-latest
-    outputs: { changed: ${{ steps.files.outputs.any_changed }} }
+    outputs:
+      changed: ${{ steps.files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - id: files
         uses: tj-actions/changed-files@v47
-        with: { files: amplifyAws-sdk/** }
+        with:
+          files: amplifyAws-sdk/**
 
   check_change_appwrite:
     name: 1. Check Appwrite Changes
     runs-on: ubuntu-latest
-    outputs: { changed: ${{ steps.files.outputs.any_changed }} }
+    outputs:
+      changed: ${{ steps.files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - id: files
         uses: tj-actions/changed-files@v47
-        with: { files: appwrite-sdk/** }
+        with:
+          files: appwrite-sdk/**
 
   check_change_firebase:
     name: 1. Check Firebase Changes
     runs-on: ubuntu-latest
-    outputs: { changed: ${{ steps.files.outputs.any_changed }} }
+    outputs:
+      changed: ${{ steps.files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - id: files
         uses: tj-actions/changed-files@v47
-        with: { files: firebase-sdk/** }
+        with:
+          files: firebase-sdk/**
 
   check_change_mongodb:
     name: 1. Check MongoDB Changes
     runs-on: ubuntu-latest
-    outputs: { changed: ${{ steps.files.outputs.any_changed }} }
+    outputs:
+      changed: ${{ steps.files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - id: files
         uses: tj-actions/changed-files@v47
-        with: { files: mongoDb-sdk/** }
+        with:
+          files: mongoDb-sdk/**
 
   check_change_supabase:
     name: 1. Check Supabase Changes
     runs-on: ubuntu-latest
-    outputs: { changed: ${{ steps.files.outputs.any_changed }} }
+    outputs:
+      changed: ${{ steps.files.outputs.any_changed }}
     steps:
       - uses: actions/checkout@v5
         with: { fetch-depth: 0 }
       - id: files
         uses: tj-actions/changed-files@v47
-        with: { files: supabase/** }
+        with:
+          files: supabase/**
 
   # --- Jobs de Build (rodam em paralelo, se ativados) ---
   build_aws:
@@ -74,7 +84,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :amplifyAws-sdk:build
       - uses: actions/upload-artifact@v4
@@ -90,7 +103,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :appwrite-sdk:build
       - uses: actions/upload-artifact@v4
@@ -106,7 +122,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :firebase-sdk:build
       - uses: actions/upload-artifact@v4
@@ -122,7 +141,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :mongoDb-sdk:build
       - uses: actions/upload-artifact@v4
@@ -138,7 +160,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - uses: android-actions/setup-android@v3
       - run: ./gradlew :supabase:build
       - uses: actions/upload-artifact@v4
@@ -155,7 +180,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :amplifyAws-sdk:publish
 
@@ -169,7 +197,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :appwrite-sdk:publish
 
@@ -183,7 +214,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :firebase-sdk:publish
 
@@ -197,7 +231,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :mongoDb-sdk:publish
 
@@ -211,7 +248,10 @@ jobs:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
       - uses: actions/setup-java@v5
-        with: { java-version: '17', distribution: 'temurin', cache: gradle }
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
       - env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :supabase:publish
 
