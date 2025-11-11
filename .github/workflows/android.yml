@@ -12,6 +12,7 @@ jobs:
     name: 1. Detect Changed Modules
     runs-on: ubuntu-latest
     outputs:
+      any_changed: ${{ steps.changed_files.outputs.any_changed }}
       aws_changed: ${{ steps.aws_files.outputs.any_changed }}
       appwrite_changed: ${{ steps.appwrite_files.outputs.any_changed }}
       firebase_changed: ${{ steps.firebase_files.outputs.any_changed }}
@@ -19,51 +20,40 @@ jobs:
       supabase_changed: ${{ steps.supabase_files.outputs.any_changed }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v5
-        with:
-          fetch-depth: 0
-
-      - name: Detect changes in amplifyAws-sdk
-        id: aws_files
+      - uses: actions/checkout@v5
+        with: { fetch-depth: 0 }
+      - id: aws_files
         uses: tj-actions/changed-files@v47
-        with:
-          files: amplifyAws-sdk/**
-
-      - name: Detect changes in appwrite-sdk
-        id: appwrite_files
+        with: { files: amplifyAws-sdk/** }
+      - id: appwrite_files
         uses: tj-actions/changed-files@v47
-        with:
-          files: appwrite-sdk/**
-
-      - name: Detect changes in firebase-sdk
-        id: firebase_files
+        with: { files: appwrite-sdk/** }
+      - id: firebase_files
         uses: tj-actions/changed-files@v47
-        with:
-          files: firebase-sdk/**
-
-      - name: Detect changes in mongoDb-sdk
-        id: mongodb_files
+        with: { files: firebase-sdk/** }
+      - id: mongodb_files
         uses: tj-actions/changed-files@v47
-        with:
-          files: mongoDb-sdk/**
-
-      - name: Detect changes in supabase
-        id: supabase_files
+        with: { files: mongoDb-sdk/** }
+      - id: supabase_files
         uses: tj-actions/changed-files@v47
-        with:
-          files: supabase/**
+        with: { files: supabase/** }
+      - id: changed_files
+        uses: tj-actions/changed-files@v47
+        with: { files: |
+            amplifyAws-sdk/**
+            appwrite-sdk/**
+            firebase-sdk/**
+            mongoDb-sdk/**
+            supabase/** }
 
-  # --- Jobs de Build e Publish --- #
+  # --- Jobs de Build e Publish (rodam em paralelo) --- #
 
   build_and_publish_aws:
     name: 2. Build & Publish AWS
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.aws_changed == 'true'
-    permissions:
-      contents: write
-      packages: write
+    permissions: { contents: read, packages: write }
     steps: 
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
@@ -75,15 +65,15 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :amplifyAws-sdk:publish
+      - uses: actions/upload-artifact@v4
+        with: { name: aws-aar, path: 'amplifyAws-sdk/build/outputs/aar/*.aar' }
 
   build_and_publish_appwrite:
     name: 2. Build & Publish Appwrite
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.appwrite_changed == 'true'
-    permissions:
-      contents: write
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
@@ -95,15 +85,15 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :appwrite-sdk:publish
+      - uses: actions/upload-artifact@v4
+        with: { name: appwrite-aar, path: 'appwrite-sdk/build/outputs/aar/*.aar' }
 
   build_and_publish_firebase:
     name: 2. Build & Publish Firebase
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.firebase_changed == 'true'
-    permissions:
-      contents: write
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
@@ -115,15 +105,15 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :firebase-sdk:publish
+      - uses: actions/upload-artifact@v4
+        with: { name: firebase-aar, path: 'firebase-sdk/build/outputs/aar/*.aar' }
 
   build_and_publish_mongodb:
     name: 2. Build & Publish MongoDB
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.mongodb_changed == 'true'
-    permissions:
-      contents: write
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
@@ -135,15 +125,15 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :mongoDb-sdk:publish
+      - uses: actions/upload-artifact@v4
+        with: { name: mongodb-aar, path: 'mongoDb-sdk/build/outputs/aar/*.aar' }
 
   build_and_publish_supabase:
     name: 2. Build & Publish Supabase
     runs-on: ubuntu-latest
     needs: check_changes
     if: needs.check_changes.outputs.supabase_changed == 'true'
-    permissions:
-      contents: write
-      packages: write
+    permissions: { contents: read, packages: write }
     steps:
       - uses: actions/checkout@v5
       - run: chmod +x gradlew
@@ -155,3 +145,49 @@ jobs:
         if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
         env: { GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} }
         run: ./gradlew :supabase:publish
+      - uses: actions/upload-artifact@v4
+        with: { name: supabase-aar, path: 'supabase/build/outputs/aar/*.aar' }
+
+  # Job Final: Cria a Tag e o Release
+  create_release:
+    name: 3. Create Git Tag and Release
+    runs-on: ubuntu-latest
+    needs: [check_changes, build_and_publish_aws, build_and_publish_appwrite, build_and_publish_firebase, build_and_publish_mongodb, build_and_publish_supabase]
+    if: always() && needs.check_changes.outputs.any_changed == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Download all AAR artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts 
+      
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create and Push Git Tag
+        id: tag_version
+        run: |
+          TAG_NAME="v0.0.${{ github.run_number }}"
+          echo "TAG_NAME=$TAG_NAME" >> $GITHUB_OUTPUT
+          git tag -a "$TAG_NAME" -m "Release $TAG_NAME"
+          git push origin "$TAG_NAME"
+      
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag_version.outputs.TAG_NAME }}
+        run: |
+          # Encontra todos os AARs baixados e os prepara para o upload
+          files_to_upload=$(find ./artifacts -name "*.aar" | tr '\n' ' ')
+
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --notes "Release automática. Mudanças detectadas nos módulos publicados." \
+            $files_to_upload
