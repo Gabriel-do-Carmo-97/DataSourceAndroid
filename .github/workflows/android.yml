@@ -14,9 +14,12 @@ jobs:
     outputs:
       version_name: ${{ steps.version.outputs.VERSION_NAME }}
     steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0 # Necessário para obter o histórico completo de commits
       - id: version
         name: Create Version Name
-        run: echo "VERSION_NAME=0.0.${{ github.run_number }}" >> $GITHUB_OUTPUT
+        run: echo "VERSION_NAME=0.0.$(git rev-list --count HEAD)" >> $GITHUB_OUTPUT
 
   # --- Jobs de Verificação (rodam em paralelo) ---
   check_change_aws:
